@@ -1,41 +1,47 @@
-clc;
-clear all;
-close all;
+symbol=input('Enter the symbol[1-5]:-');
+p=input('Enter the symbol probability[0.1-0.5]:-');
+[dict,avglen]=huffmandict(symbol,p);
 
-n = input('Enter the length of codeword frame n: ');  
-l = input('Enter the length of msg vector l: ');     
-m = input('Enter the number of flip-flops m: ');     
-msg = input('Enter the number of actual msg bits[1 0 1 1]: '); 
+code =dict;
+for i = 1:length(code)
+code{i,2} = num2str(code{i,2});
+end
+code
 
-g1 = input('Enter the impulse response of adder 1 [1 1 1]: ');  
-g2 = input('Enter the impulse response of adder 2 [1 0 1]: ');  
+[m,k]=size(p);
+Hx=0;
+for c=1
+   hx=p(c)*log2(1/p(c)); 
+    Hx=Hx+hx;
+end
+disp('calculation of entropy');
+disp(Hx);
 
-k=n+1;
-a=n+(l+k-1);  
 
-msg=[msg zeros(1,k-1)];
+disp('calculation of coding efficiency');
+n1=(Hx/avglen);
+Efficiency=n1*100
 
-a=num2str(g1);
-b=num2str(g2);
 
-impulse1 =str2num(dec2base(bin2dec(a),8));  
-impulse2 = str2num(dec2base(bin2dec(b),8));  
+disp('calculation of redundancy');
+Redundancy=1-n1
 
-impulse = [impulse1, impulse2];
-
-trellis = poly2trellis(k, impulse);
-
-code = convenc(msg, trellis);
-
-disp('The encoded codeword is:');
-disp(code);
+signal=input('Enter the symbols to be transmitted[1-5]:');
+disp('symbols after encoding are:')
+code = huffmanenco(signal,dict)
+disp('Encoded signals after decoding are');
+sig = huffmandeco(code,dict)
+if(isequal(signal,sig))
+disp('encoded signal is completely recovered');
+else
+    disp('encoded signal is not properly recovered');
+end
 
 
 Input:
 
-Enter the length of codeword frame n: 2
-Enter the length of msg vector l: 5
-Enter the number of flip-flops m: 2
-Enter the number of actual msg bits[1 0 1 1]: [1 0 1 1 0]
-Enter the impulse response of adder 1 [1 1 1]: [1 1 1]
-Enter the impulse response of adder 2 [1 0 1]: [1 0 1]
+Symbols: [1, 2, 3, 4, 5]
+Probabilities: [0.1, 0.2, 0.3, 0.2, 0.2]
+
+Transmit signal :[1, 2, 3, 4, 5]
+
