@@ -1,0 +1,69 @@
+clc;
+clear all;
+close all;
+
+nr_data_bits = 8192;
+b_data = (randn(1, nr_data_bits)) > 0.5;
+b = b_data;
+d = zeros(1, length(b));
+
+% BPSK Modulation
+for n = 1:length(b)
+    if(b(n) == 0)
+        d(n) = exp(1j*2*pi);
+    end        
+    if(b(n) == 1)
+        d(n) = exp(1j*pi);
+    end
+end
+
+bpsk = d;
+
+% Plotting BPSK Constellation
+figure(1);
+plot(real(bpsk), imag(bpsk), 'o');
+axis([-2 2 -2 2]);
+grid on;
+xlabel('Real');
+ylabel('Imaginary');
+title('BPSK Constellation');
+
+% SNR Range
+SNRdB = 0:24;
+BER1 = [];
+SNR1 = [];
+
+% Loop over SNR values
+for snr = SNRdB
+    sigma = sqrt(10^(-snr / 10));
+    snbpsk = (real(bpsk) + sigma * randn(size(bpsk))) + 1j * (imag(bpsk) + sigma * randn(size(bpsk)));
+
+    % Plotting BPSK data with noise
+    figure(2);
+    plot(real(snbpsk), imag(snbpsk), 'o');
+    axis([-2 2 -2 2]);
+    grid on;
+    xlabel('Real');
+    ylabel('Imaginary');
+    title('BPSK Constellation with Noise');
+
+    % Receiver: Demodulation
+    r = snbpsk; 
+    bhat = [real(r) < 0];
+    bhat = bhat(:)';
+    ne = sum(b ~= bhat);
+    BER = ne / nr_data_bits;
+
+    % Store BER and SNR
+    BER1 = [BER1 BER];
+    SNR1 = [SNR1 snr];
+end
+
+% Plotting of BER vs SNR
+figure(3);
+semilogy(SNR1, BER1, '-*');
+grid on;
+xlabel('SNR (dB)');
+ylabel('BER');
+title('Simulation of BER for BPSK');
+legend('BER-simulated');

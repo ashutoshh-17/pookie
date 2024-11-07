@@ -1,0 +1,41 @@
+clc;
+clear all;
+close all;
+
+n = input('Enter the length of codeword frame n: ');  
+l = input('Enter the length of msg vector l: ');     
+m = input('Enter the number of flip-flops m: ');     
+msg = input('Enter the number of actual msg bits[1 0 1 1]: '); 
+
+g1 = input('Enter the impulse response of adder 1 [1 1 1]: ');  
+g2 = input('Enter the impulse response of adder 2 [1 0 1]: ');  
+
+k=n+1;
+a=n+(l+k-1);  
+
+msg=[msg zeros(1,k-1)];
+
+a=num2str(g1);
+b=num2str(g2);
+
+impulse1 =str2num(dec2base(bin2dec(a),8));  
+impulse2 = str2num(dec2base(bin2dec(b),8));  
+
+impulse = [impulse1, impulse2];
+
+trellis = poly2trellis(k, impulse);
+
+code = convenc(msg, trellis);
+
+disp('The encoded codeword is:');
+disp(code);
+
+
+Input:
+
+Enter the length of codeword frame n: 2
+Enter the length of msg vector l: 5
+Enter the number of flip-flops m: 2
+Enter the number of actual msg bits[1 0 1 1]: [1 0 1 1 0]
+Enter the impulse response of adder 1 [1 1 1]: [1 1 1]
+Enter the impulse response of adder 2 [1 0 1]: [1 0 1]
