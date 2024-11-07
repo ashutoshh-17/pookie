@@ -1,35 +1,54 @@
 clc;
 clear all;
-M=16;
-x=[0:M-1];
-N=1;
-OFF=0;
-z=pskmod(x,M);
-figure(1)
-scatterplot(z,N,OFF,'r+');
+
+M = 16;                      
+x = 0:M-1;                   
+N = 1;                       
+OFF = 0;                       
+
+z = pskmod(x, M);
+figure;
+scatterplot(z, N, OFF, 'r+');
+title('16-PSK Constellation Diagram');
+xlabel('In-Phase');
+ylabel('Quadrature');
+
+y = qammod(x, M);
+figure;
+scatterplot(y, N, OFF, 'ro');
+title('16-QAM Constellation Diagram');
+xlabel('In-Phase');
+ylabel('Quadrature');
+
 
 --------------------------------------
 
-N=1;
-OFF=0;
-y=qammod(x,M);
-figure(2)
-scatterplot(y,N,OFF,"bo");
 
---------------------------------------
+M_symbols = input('Enter the number of symbols (e.g., 1000): ');
+SNR = input('Enter the SNR for the system in dB (e.g., 20 for 20dB): ');
 
-M=input('Number_Symbols=');
-SNR=input('SNR of QPSK system in dB=');
-x1=randint (1000,1,M);
-y1=pskmod (x1,M);
-y1n=awgn(y1, SNR, 'measured');
-scatterplot (y1n);
-y1r=pskdemod(y1n, M);
-[num_error,er_rate]=symerr(x1,y1r)
-%Constellation diagram of QAM in presence of noise with SNR-5dB
-y2=qammod (x1,M);
-y2n=awgn (y2, SNR, 'measured');
-scatterplot (y2n);
-y2r=qamdemod (y2n, M);
-[num_error, er_rate]=symerr (x1, y2r)
+
+x1 = randi([0, M-1], 1, M_symbols); 
+
+
+y1 = pskmod(x1, M);
+y1_noisy = awgn(y1, SNR, 'measured');
+
+scatterplot(y1_noisy, N, OFF, 'r+');
+title(['16-PSK Constellation with Noise (SNR = ' num2str(SNR) ' dB)']);
+
+y1_demod = pskdemod(y1_noisy, M);
+[num_errors_psk, error_rate_psk] = symerr(x1, y1_demod);
+disp(['16-PSK: Number of Errors = ' num2str(num_errors_psk) ', Error Rate = ' num2str(error_rate_psk)]);
+
+
+y2 = qammod(x1, M);
+y2_noisy = awgn(y2, SNR, 'measured');
+
+scatterplot(y2_noisy, N, OFF, 'bo');
+title(['16-QAM Constellation with Noise (SNR = ' num2str(SNR) ' dB)']);
+
+y2_demod = qamdemod(y2_noisy, M);
+[num_errors_qam, error_rate_qam] = symerr(x1, y2_demod);
+disp(['16-QAM: Number of Errors = ' num2str(num_errors_qam) ', Error Rate = ' num2str(error_rate_qam)]);
 

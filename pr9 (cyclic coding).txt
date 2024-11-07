@@ -29,3 +29,19 @@ disp(err_vec);
 deco = decode(r, n, k, 'cyclic/binary', gen, err_vec);
 disp('The correct message is:');
 disp(deco);
+
+
+
+Input:
+
+Enter the code length: 7
+Enter message length: 4
+Enter message (k bits) as a binary vector: 3
+
+
+% The Codeword is:
+%     1     0     1     1     0     0     0
+
+% copy this generated code to next line
+
+Enter the received codeword as a binary vector: [1     0     1     1     0     0     0]

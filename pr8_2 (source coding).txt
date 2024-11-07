@@ -1,47 +1,54 @@
-symbol=input('Enter the symbol[1-5]:-');
-p=input('Enter the symbol probability[0.1-0.5]:-');
-[dict,avglen]=huffmandict(symbol,p);
+clc;
+clear all;
 
-code =dict;
-for i = 1:length(code)
-code{i,2} = num2str(code{i,2});
-end
-code
+M = 16;                      
+x = 0:M-1;                   
+N = 1;                       
+OFF = 0;                       
 
-[m,k]=size(p);
-Hx=0;
-for c=1
-   hx=p(c)*log2(1/p(c)); 
-    Hx=Hx+hx;
-end
-disp('calculation of entropy');
-disp(Hx);
+z = pskmod(x, M);
+figure;
+scatterplot(z, N, OFF, 'r+');
+title('16-PSK Constellation Diagram');
+xlabel('In-Phase');
+ylabel('Quadrature');
 
-
-disp('calculation of coding efficiency');
-n1=(Hx/avglen);
-Efficiency=n1*100
+y = qammod(x, M);
+figure;
+scatterplot(y, N, OFF, 'ro');
+title('16-QAM Constellation Diagram');
+xlabel('In-Phase');
+ylabel('Quadrature');
 
 
-disp('calculation of redundancy');
-Redundancy=1-n1
-
-signal=input('Enter the symbols to be transmitted[1-5]:');
-disp('symbols after encoding are:')
-code = huffmanenco(signal,dict)
-disp('Encoded signals after decoding are');
-sig = huffmandeco(code,dict)
-if(isequal(signal,sig))
-disp('encoded signal is completely recovered');
-else
-    disp('encoded signal is not properly recovered');
-end
+--------------------------------------
 
 
-Input:
+M_symbols = input('Enter the number of symbols (e.g., 1000): ');
+SNR = input('Enter the SNR for the system in dB (e.g., 20 for 20dB): ');
 
-Symbols: [1, 2, 3, 4, 5]
-Probabilities: [0.1, 0.2, 0.3, 0.2, 0.2]
 
-Transmit signal :[1, 2, 3, 4, 5]
+x1 = randi([0, M-1], 1, M_symbols); 
+
+
+y1 = pskmod(x1, M);
+y1_noisy = awgn(y1, SNR, 'measured');
+
+scatterplot(y1_noisy, N, OFF, 'r+');
+title(['16-PSK Constellation with Noise (SNR = ' num2str(SNR) ' dB)']);
+
+y1_demod = pskdemod(y1_noisy, M);
+[num_errors_psk, error_rate_psk] = symerr(x1, y1_demod);
+disp(['16-PSK: Number of Errors = ' num2str(num_errors_psk) ', Error Rate = ' num2str(error_rate_psk)]);
+
+
+y2 = qammod(x1, M);
+y2_noisy = awgn(y2, SNR, 'measured');
+
+scatterplot(y2_noisy, N, OFF, 'bo');
+title(['16-QAM Constellation with Noise (SNR = ' num2str(SNR) ' dB)']);
+
+y2_demod = qamdemod(y2_noisy, M);
+[num_errors_qam, error_rate_qam] = symerr(x1, y2_demod);
+disp(['16-QAM: Number of Errors = ' num2str(num_errors_qam) ', Error Rate = ' num2str(error_rate_qam)]);
 
